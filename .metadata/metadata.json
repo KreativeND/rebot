@@ -1,0 +1,44 @@
+{
+  "name": "src",
+  "type": "folder",
+  "path": "/home/niraj/Documents/projects/test/src",
+  "children": [
+    {
+      "name": "App.css",
+      "type": "file",
+      "path": "/home/niraj/Documents/projects/test/src/App.css"
+    },
+    {
+      "name": "App.js",
+      "type": "file",
+      "path": "/home/niraj/Documents/projects/test/src/App.js"
+    },
+    {
+      "name": "components",
+      "type": "folder",
+      "path": "/home/niraj/Documents/projects/test/src/components",
+      "children": [
+        {
+          "name": "header.js",
+          "type": "file",
+          "path": "/home/niraj/Documents/projects/test/src/components/header.js"
+        },
+        {
+          "name": "navbar.js",
+          "type": "file",
+          "path": "/home/niraj/Documents/projects/test/src/components/navbar.js"
+        }
+      ]
+    },
+    {
+      "name": "index.css",
+      "type": "file",
+      "path": "/home/niraj/Documents/projects/test/src/index.css"
+    },
+    {
+      "name": "index.js",
+      "type": "file",
+      "path": "/home/niraj/Documents/projects/test/src/index.js"
+    }
+  ]
+}

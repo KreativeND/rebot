@@ -1,0 +1,73 @@
+{
+  "nodes": [
+    {
+      "id": "src",
+      "type": "folder"
+    },
+    {
+      "id": "src-App.css",
+      "type": "file"
+    },
+    {
+      "id": "src-App.js",
+      "type": "file"
+    },
+    {
+      "id": "src-components",
+      "type": "folder"
+    },
+    {
+      "id": "src-components-header.js",
+      "type": "file"
+    },
+    {
+      "id": "src-components-navbar.js",
+      "type": "file"
+    },
+    {
+      "id": "src-index.css",
+      "type": "file"
+    },
+    {
+      "id": "src-index.js",
+      "type": "file"
+    }
+  ],
+  "edges": [
+    {
+      "id": "src-src-App.css",
+      "source": "src",
+      "target": "src-App.css"
+    },
+    {
+      "id": "src-src-App.js",
+      "source": "src",
+      "target": "src-App.js"
+    },
+    {
+      "id": "src-components-src-components-header.js",
+      "source": "src-components",
+      "target": "src-components-header.js"
+    },
+    {
+      "id": "src-components-src-components-navbar.js",
+      "source": "src-components",
+      "target": "src-components-navbar.js"
+    },
+    {
+      "id": "src-src-components",
+      "source": "src",
+      "target": "src-components"
+    },
+    {
+      "id": "src-src-index.css",
+      "source": "src",
+      "target": "src-index.css"
+    },
+    {
+      "id": "src-src-index.js",
+      "source": "src",
+      "target": "src-index.js"
+    }
+  ]
+}
