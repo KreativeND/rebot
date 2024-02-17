@@ -4,7 +4,7 @@ import * as fs from "fs";
 
 export const getNodesAndEdges = () => {
     let reactFlowData = { nodes: [], edges: []}
-    const rootPath = workspace.rootPath;
+    const rootPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
         if (!rootPath) {
             window.showErrorMessage('No workspace opened');
             return;
@@ -24,6 +24,7 @@ export const getNodesAndEdges = () => {
 
                 try {
                     reactFlowData = JSON.parse(data);
+                    console.log(reactFlowData);
                     // Use reactFlowData in your React component
                 } catch (error) {
                     window.showErrorMessage('Error parsing JSON data');
@@ -32,5 +33,5 @@ export const getNodesAndEdges = () => {
         } else {
             window.showErrorMessage('reactFlowData.json file not found');
         }
-        return reactFlowData;
+        // return reactFlowData;
 }

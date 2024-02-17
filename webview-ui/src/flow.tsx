@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -9,179 +9,107 @@ import ReactFlow, {
   Position,
 } from "reactflow";
 import "reactflow/dist/base.css";
+import FolderNode from "./customNodes/FolderNode";
+import FileNode from "./customNodes/FileNode";
+import { LuRocket } from "react-icons/lu";
 
-const initialNodes = [
-  {
-    id: "1",
-    type: "default",
-    position: {
-      x: 444,
-      y: 0,
-    },
-    data: {
-      label: "src",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-2",
-    type: "default",
-    position: {
-      x: 0,
-      y: 86,
-    },
-    data: {
-      label: "App.css",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-3",
-    type: "default",
-    position: {
-      x: 222,
-      y: 86,
-    },
-    data: {
-      label: "App.js",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-4",
-    type: "default",
-    position: {
-      x: 444,
-      y: 86,
-    },
-    data: {
-      label: "components",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-4-5",
-    type: "default",
-    position: {
-      x: 333,
-      y: 172,
-    },
-    data: {
-      label: "header.js",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-4-6",
-    type: "default",
-    position: {
-      x: 555,
-      y: 172,
-    },
-    data: {
-      label: "navbar.js",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-7",
-    type: "default",
-    position: {
-      x: 666,
-      y: 86,
-    },
-    data: {
-      label: "index.css",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-  {
-    id: "1-8",
-    type: "default",
-    position: {
-      x: 888,
-      y: 86,
-    },
-    data: {
-      label: "index.js",
-    },
-    targetPosition: "top",
-    sourcePosition: "bottom",
-  },
-];
+const nodeTypes = {
+  FolderNode: FolderNode,
+  FileNode: FileNode,
+};
 
-const initialEdges = [
-  {
-    id: "1-1-2",
-    source: "1",
-    target: "1-2",
-  },
-  {
-    id: "1-1-3",
-    source: "1",
-    target: "1-3",
-  },
-  {
-    id: "1-4-1-4-5",
-    source: "1-4",
-    target: "1-4-5",
-  },
-  {
-    id: "1-4-1-4-6",
-    source: "1-4",
-    target: "1-4-6",
-  },
-  {
-    id: "1-1-4",
-    source: "1",
-    target: "1-4",
-  },
-  {
-    id: "1-1-7",
-    source: "1",
-    target: "1-7",
-  },
-  {
-    id: "1-1-8",
-    source: "1",
-    target: "1-8",
-  },
-];
+let initialNodes = [];
+
+let initialEdges = [];
+
 const Flow = () => {
+  const vscodeForeground = window
+    .getComputedStyle(document.documentElement)
+    .getPropertyValue("--vscode-foreground");
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes as any);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   useEffect(() => {
-    setEdges((prev) => {
-      return prev.map((edge: any) => ({
-        ...edge,
-        type: "smoothstep", // Set edge type to SmoothStepEdgeType
-        animated: true,
-      }));
-    })
+    console.log("asdasdasgyudgausgdufyuasgdyuasgudgfuaysdgausd");
+    const messageListener = (event) => {
+      const message = event.data;
+      // Handle messages from the extension
+      switch (message.command) {
+        case "sendDataToExtension":
+          // Handle the received data from the extension
+          console.log("Received data from extension:", message.payload);
+          initialNodes = message.payload?.layoutedNodes;
+          initialEdges = message.payload?.layoutedEdges;
+          console.log("nodes:", initialNodes);
+          setNodes((nodes) => initialNodes);
+          setEdges((prev) => {
+            return initialEdges.map((edge: any) => ({
+              ...edge,
+              type: "smoothstep", // Set edge type to SmoothStepEdgeType
+              animated: true,
+              style: { strokeWidth: 2 },
+            }));
+          });
+          console.log("edges:", initialEdges);
+          // Update nodes based on the received data
+          break;
+        // Add more cases for different commands if needed
+        default:
+          break;
+      }
+    };
+
+    // Add event listener for messages from the extension
+    window.addEventListener("message", messageListener);
+
+    // Clean up event listener
+    return () => {
+      window.removeEventListener("message", messageListener);
+    };
   }, []);
 
-  const onConnect = useCallback((params) => setEdges((els) => addEdge(params, els)), []);
-
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      fitView>
-      <Background />
-      <Controls />
-      <MiniMap />
-    </ReactFlow>
+    <div style={{ height: "100%", width: "100%", position: "relative" }}>
+      <ReactFlow
+        style={{ height: "100%", width: "100%" }}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        fitView>
+        {/* <Background color={vscodeForeground}/> */}
+        {/* <Controls /> */}
+      </ReactFlow>
+      <div
+        style={{
+          position: "absolute",
+          zIndex: "1000",
+          width: "100%",
+          bottom: "20px",
+          display: "flex",
+          justifyContent: "center",
+        }}>
+        {/* <input
+          style={{
+            backgroundColor: "var(--vscode-button-background)",
+            cursor: "pointer",
+            border: "2px solid black",
+            borderRadius: "10px",
+            paddingInline: "20px",
+          }}
+          type="button"
+          value="🚀 Refactor"
+        /> */}
+        <button className="Btn">
+          <div className="sign">
+            <LuRocket size="40px"/>
+          </div>
+
+          <div className="text">Refactor</div>
+        </button>
+      </div>
+    </div>
   );
 };
 

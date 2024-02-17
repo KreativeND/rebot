@@ -1,8 +1,8 @@
-import { commands, ExtensionContext, FileStat, window, Uri, workspace } from "vscode";
+import { commands, ExtensionContext, FileStat, window, Uri, workspace, extensions } from "vscode";
 import { HelloWorldPanel } from "./panels/HelloWorldPanel";
 import * as path from "path";
 import * as fs from "fs";
-import * as dagre from 'dagre';
+import * as dagre from "dagre";
 
 interface FileNode {
   name: string;
@@ -16,7 +16,7 @@ interface Node {
   id: string;
   type: string;
   data?: any;
-  position?: { x: number, y: number};
+  position?: { x: number; y: number };
 }
 
 interface Edge {
@@ -28,16 +28,14 @@ interface Edge {
   data?: any;
 }
 
-
-
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 172;
-const nodeHeight = 36;
+const nodeWidth = 100;
+const nodeHeight = 40;
 
-const getLayoutedElements = (nodes, edges, direction = 'TB') => {
-  const isHorizontal = direction === 'LR';
+const getLayoutedElements = (nodes, edges, direction = "TB") => {
+  const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ rankdir: direction });
 
   nodes.forEach((node) => {
@@ -52,8 +50,8 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
   nodes.forEach((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? 'left' : 'top';
-    node.sourcePosition = isHorizontal ? 'right' : 'bottom';
+    node.targetPosition = isHorizontal ? "left" : "top";
+    node.sourcePosition = isHorizontal ? "right" : "bottom";
 
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
@@ -68,40 +66,39 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   return { nodes, edges };
 };
 
-
-function generateReactFlowData(fileTree: FileNode): { layoutedNodes: Node[], layoutedEdges: Edge[] } {
+function generateReactFlowData(fileTree: FileNode): {
+  layoutedNodes: Node[];
+  layoutedEdges: Edge[];
+} {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   let nodeIdCounter = 1;
 
   const traverse = (node: FileNode, parentId?: string) => {
-      const nodeId = parentId ? `${parentId}-${nodeIdCounter++}` : `${nodeIdCounter++}`;
-      const newNode: Node = { 
-        id: nodeId,
-        type: 'default', // Set type to 'default'
-        position: { x: 0, y: 0 },
-        data: { label: node.name, isDirectory: node.type === 'folder' } // Add isDirectory property
+    const nodeId = parentId ? `${parentId}-${nodeIdCounter++}` : `${nodeIdCounter++}`;
+    const newNode: Node = {
+      id: nodeId,
+      type: node.type === "folder" ? "FolderNode" : "FileNode",
+      position: { x: 0, y: 0 },
+      data: { label: node.name, isDirectory: node.type === "folder" }, // Add isDirectory property
     };
 
-      nodes.push(newNode);
+    nodes.push(newNode);
 
-      if (node.children) {
-          node.children.forEach(child => {
-              const childId = traverse(child, nodeId);
-              edges.push({ id: `${nodeId}-${childId}`, source: nodeId, target: childId });
-          });
-      }
+    if (node.children) {
+      node.children.forEach((child) => {
+        const childId = traverse(child, nodeId);
+        edges.push({ id: `${nodeId}-${childId}`, source: nodeId, target: childId });
+      });
+    }
 
-      return nodeId;
+    return nodeId;
   };
 
   traverse(fileTree);
 
-  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    nodes,
-    edges
-  );
+  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
 
   return { layoutedNodes, layoutedEdges };
 }
@@ -134,7 +131,7 @@ function getFileTree(uri: Uri): FileNode {
       .map((child) => getFileTree(Uri.file(path.join(uri.fsPath, child))));
     fileNode.children = children;
   } else {
-    // fileNode.content = fs.readFileSync(uri.fsPath, "utf8");
+    fileNode.content = fs.readFileSync(uri.fsPath, "utf8");
   }
 
   return fileNode;
@@ -146,10 +143,46 @@ function createDirectoryIfNotExists(directoryPath: string): void {
   }
 }
 
+async function readJsonFileAtRoot(fileName) {
+  const workspaceFolders = workspace.workspaceFolders;
+  if (!workspaceFolders) {
+    window.showErrorMessage("No workspace folders are opened.");
+    return;
+  }
+
+  // Get the first workspace folder (assuming there's only one)
+  const rootUri = workspaceFolders[0].uri;
+
+  // Construct the URI of the JSON file
+  const fileUri = Uri.joinPath(rootUri, "/.metadata", fileName);
+
+  try {
+    // Read the file contents
+    const fileContents = await workspace.fs.readFile(fileUri);
+    // Convert the file contents buffer to string
+    const fileContentsString = Buffer.from(fileContents).toString("utf-8");
+    // Parse the JSON string into an object
+    const jsonData = JSON.parse(fileContentsString);
+    return jsonData;
+  } catch (error) {
+    window.showErrorMessage(`Failed to read JSON file: ${error.message}`);
+  }
+}
+
 export function activate(context: ExtensionContext) {
+  let reactFlowData: any = null;
+
   // Create the show hello world command
   const showHelloWorldCommand = commands.registerCommand("hello-world.showHelloWorld", () => {
-    HelloWorldPanel.render(context.extensionUri);
+    const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
+
+    readJsonFileAtRoot(fileName).then((data) => {
+      if (data) {
+        console.log(data); // Do something with the JSON data
+        HelloWorldPanel.render(context.extensionUri);
+        HelloWorldPanel.currentPanel.sendDataToWebview(data);
+      }
+    });
   });
 
   // Add command to the extension context
@@ -179,7 +212,7 @@ export function activate(context: ExtensionContext) {
       fs.writeFileSync(filePath, jsonFolderTree);
 
       // Generate React flow data
-      const reactFlowData = generateReactFlowData(folderTree);
+      reactFlowData = generateReactFlowData(folderTree);
       // Convert React flow data to JSON
       const jsonFlowData = JSON.stringify(reactFlowData, null, 2);
 
