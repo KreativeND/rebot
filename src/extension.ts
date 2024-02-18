@@ -16,9 +16,13 @@ interface Node {
   id: string;
   type: string;
   data?: any;
+  metadata?: {
+    path: string;
+    content?: string;
+    relativePath?: string; // Add relativePath field
+  };
   position?: { x: number; y: number };
 }
-
 interface Edge {
   id: string;
   source: string;
@@ -66,29 +70,50 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
   return { nodes, edges };
 };
 
-function generateReactFlowData(fileTree: FileNode): {
+async function generateReactFlowData(fileTree: FileNode): Promise<{
   layoutedNodes: Node[];
   layoutedEdges: Edge[];
-} {
+}> {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   let nodeIdCounter = 1;
 
-  const traverse = (node: FileNode, parentId?: string) => {
+  // Get the current workspace folder
+  const workspaceFolders = workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    throw new Error("No workspace is opened.");
+  }
+  const workspaceFolder = workspaceFolders[0]; // Assuming only one workspace is opened
+  const workspaceUri = workspaceFolder.uri;
+  const workspacePath = workspaceUri.fsPath;
+
+  const traverse = (node: FileNode, parentId?: string, parentPath?: string) => {
     const nodeId = parentId ? `${parentId}-${nodeIdCounter++}` : `${nodeIdCounter++}`;
+    const absolutePath = path.join(parentPath || "", node.name);
+    const relativePath = path.relative(workspacePath, absolutePath);
+
+    // Ensure relative path does not contain the workspace directory
+    const relativePathWithoutWorkspace = relativePath.startsWith("..")
+      ? relativePath
+      : `./${relativePath}`;
     const newNode: Node = {
       id: nodeId,
       type: node.type === "folder" ? "FolderNode" : "FileNode",
       position: { x: 0, y: 0 },
-      data: { label: node.name, isDirectory: node.type === "folder" }, // Add isDirectory property
+      data: { label: node.name, isDirectory: node.type === "folder" },
+      metadata: {
+        path: absolutePath,
+        content: node.content,
+        relativePath: relativePathWithoutWorkspace,
+      }, // Populate metadata
     };
 
     nodes.push(newNode);
 
     if (node.children) {
       node.children.forEach((child) => {
-        const childId = traverse(child, nodeId);
+        const childId = traverse(child, nodeId, absolutePath);
         edges.push({ id: `${nodeId}-${childId}`, source: nodeId, target: childId });
       });
     }
@@ -173,7 +198,7 @@ export function activate(context: ExtensionContext) {
   let reactFlowData: any = null;
 
   // Create the show hello world command
-  const showHelloWorldCommand = commands.registerCommand("hello-world.showHelloWorld", () => {
+  const showHelloWorldCommand = commands.registerCommand("rebot.startRebot", () => {
     const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
 
     readJsonFileAtRoot(fileName).then((data) => {
@@ -188,7 +213,7 @@ export function activate(context: ExtensionContext) {
   // Add command to the extension context
   context.subscriptions.push(showHelloWorldCommand);
 
-  let disposable = commands.registerCommand("hello-world.showFileTree", () => {
+  let disposable = commands.registerCommand("rebot.showFileTree", async () => {
     // Get the root path of the workspace
     // Find the folder in the workspace
     const folderUri = findFolderInWorkspace("src");
@@ -212,7 +237,7 @@ export function activate(context: ExtensionContext) {
       fs.writeFileSync(filePath, jsonFolderTree);
 
       // Generate React flow data
-      reactFlowData = generateReactFlowData(folderTree);
+      reactFlowData = await generateReactFlowData(folderTree);
       // Convert React flow data to JSON
       const jsonFlowData = JSON.stringify(reactFlowData, null, 2);
 

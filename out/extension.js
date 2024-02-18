@@ -44,29 +44,50 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     return { nodes, edges };
 };
 function generateReactFlowData(fileTree) {
-    const nodes = [];
-    const edges = [];
-    let nodeIdCounter = 1;
-    const traverse = (node, parentId) => {
-        const nodeId = parentId ? `${parentId}-${nodeIdCounter++}` : `${nodeIdCounter++}`;
-        const newNode = {
-            id: nodeId,
-            type: node.type === "folder" ? "FolderNode" : "FileNode",
-            position: { x: 0, y: 0 },
-            data: { label: node.name, isDirectory: node.type === "folder" }, // Add isDirectory property
-        };
-        nodes.push(newNode);
-        if (node.children) {
-            node.children.forEach((child) => {
-                const childId = traverse(child, nodeId);
-                edges.push({ id: `${nodeId}-${childId}`, source: nodeId, target: childId });
-            });
+    return __awaiter(this, void 0, void 0, function* () {
+        const nodes = [];
+        const edges = [];
+        let nodeIdCounter = 1;
+        // Get the current workspace folder
+        const workspaceFolders = vscode_1.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            throw new Error("No workspace is opened.");
         }
-        return nodeId;
-    };
-    traverse(fileTree);
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
-    return { layoutedNodes, layoutedEdges };
+        const workspaceFolder = workspaceFolders[0]; // Assuming only one workspace is opened
+        const workspaceUri = workspaceFolder.uri;
+        const workspacePath = workspaceUri.fsPath;
+        const traverse = (node, parentId, parentPath) => {
+            const nodeId = parentId ? `${parentId}-${nodeIdCounter++}` : `${nodeIdCounter++}`;
+            const absolutePath = path.join(parentPath || "", node.name);
+            const relativePath = path.relative(workspacePath, absolutePath);
+            // Ensure relative path does not contain the workspace directory
+            const relativePathWithoutWorkspace = relativePath.startsWith("..")
+                ? relativePath
+                : `./${relativePath}`;
+            const newNode = {
+                id: nodeId,
+                type: node.type === "folder" ? "FolderNode" : "FileNode",
+                position: { x: 0, y: 0 },
+                data: { label: node.name, isDirectory: node.type === "folder" },
+                metadata: {
+                    path: absolutePath,
+                    content: node.content,
+                    relativePath: relativePathWithoutWorkspace,
+                }, // Populate metadata
+            };
+            nodes.push(newNode);
+            if (node.children) {
+                node.children.forEach((child) => {
+                    const childId = traverse(child, nodeId, absolutePath);
+                    edges.push({ id: `${nodeId}-${childId}`, source: nodeId, target: childId });
+                });
+            }
+            return nodeId;
+        };
+        traverse(fileTree);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
+        return { layoutedNodes, layoutedEdges };
+    });
 }
 function findFolderInWorkspace(folderName) {
     const workspaceFolders = vscode_1.workspace.workspaceFolders;
@@ -131,7 +152,7 @@ function readJsonFileAtRoot(fileName) {
 function activate(context) {
     let reactFlowData = null;
     // Create the show hello world command
-    const showHelloWorldCommand = vscode_1.commands.registerCommand("hello-world.showHelloWorld", () => {
+    const showHelloWorldCommand = vscode_1.commands.registerCommand("rebot.startRebot", () => {
         const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
         readJsonFileAtRoot(fileName).then((data) => {
             if (data) {
@@ -143,7 +164,7 @@ function activate(context) {
     });
     // Add command to the extension context
     context.subscriptions.push(showHelloWorldCommand);
-    let disposable = vscode_1.commands.registerCommand("hello-world.showFileTree", () => {
+    let disposable = vscode_1.commands.registerCommand("rebot.showFileTree", () => __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
         // Get the root path of the workspace
         // Find the folder in the workspace
@@ -165,7 +186,7 @@ function activate(context) {
             const filePath = path.join(metadataFolderPath, "metadata.json");
             fs.writeFileSync(filePath, jsonFolderTree);
             // Generate React flow data
-            reactFlowData = generateReactFlowData(folderTree);
+            reactFlowData = yield generateReactFlowData(folderTree);
             // Convert React flow data to JSON
             const jsonFlowData = JSON.stringify(reactFlowData, null, 2);
             // Write JSON to a file in the metadata folder
@@ -176,7 +197,7 @@ function activate(context) {
         else {
             vscode_1.window.showErrorMessage(`Folder "${"src"}" not found in workspace.`);
         }
-    });
+    }));
     context.subscriptions.push(disposable);
 }
 exports.activate = activate;

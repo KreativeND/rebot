@@ -23,8 +23,8 @@ export class HelloWorldPanel {
       HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
       const panel = window.createWebviewPanel(
-        "showHelloWorld",
-        "Hello World",
+        "startRebot",
+        "REBOT",
         ViewColumn.One,
         {
           enableScripts: true,

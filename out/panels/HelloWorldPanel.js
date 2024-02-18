@@ -18,7 +18,7 @@ class HelloWorldPanel {
             HelloWorldPanel.currentPanel._panel.reveal(vscode_1.ViewColumn.One);
         }
         else {
-            const panel = vscode_1.window.createWebviewPanel("showHelloWorld", "Hello World", vscode_1.ViewColumn.One, {
+            const panel = vscode_1.window.createWebviewPanel("startRebot", "REBOT", vscode_1.ViewColumn.One, {
                 enableScripts: true,
                 localResourceRoots: [
                     vscode_1.Uri.joinPath(extensionUri, "out"),

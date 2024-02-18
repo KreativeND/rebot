@@ -1,8 +1,8 @@
 {
   "name": "refactor",
-  "displayName": "hello-world-react-vite",
+  "displayName": "rebot",
   "publisher": "rebot",
-  "description": "A hello world sample extension to demonstrate using React + Vite with the Webview UI Toolkit for VS Code.",
+  "description": "Refactor your code within VS Code with the power of genAI.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.75.0"
@@ -11,12 +11,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "hello-world.showHelloWorld",
-        "title": "Hello World (React + Vite): Show"
+        "command": "rebot.startRebot",
+        "title": "start rebot",
+        "category": "rebot"
       },
       {
-        "command": "hello-world.showFileTree",
-        "title": "show file tree"
+        "command": "rebot.showFileTree",
+        "title": "show file tree",
+        "category": "rebot"
       }
     ]
   },
