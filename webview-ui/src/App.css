@@ -75,3 +75,16 @@ main {
 .Btn:active {
   transform: translate(2px ,2px);
 }
+
+
+.react-flow__node-turbo.selected .card:before {
+  content: '';
+  background: conic-gradient(
+    from -160deg at 50% 50%,
+    #e92a67 0deg,
+    #a853ba 120deg,
+    #2a8af6 240deg,
+    rgba(42, 138, 246, 0) 360deg
+  );
+  z-index: -1;
+}

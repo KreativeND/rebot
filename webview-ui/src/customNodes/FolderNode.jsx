@@ -15,13 +15,10 @@ const FolderNode = memo(({ data }) => {
           borderRadius: "10px",
           display: "grid",
           placeItems: "center",
-          cursor: "pointer"
-        }}
-        >
-        <Handle
-          type="target"
-          position={Position.Top}
-        />
+          cursor: "pointer",
+          position: "relative",
+        }}>
+        <Handle type="target" position={Position.Top} />
         <div style={{ display: "flex", alignItems: "center" }}>
           <FaRegFolder style={{ marginRight: "3px" }} />
           <strong>{data?.label}</strong>

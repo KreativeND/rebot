@@ -43,6 +43,20 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     });
     return { nodes, edges };
 };
+function getProblemsForFile(filePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const document = yield vscode_1.workspace.openTextDocument(filePath);
+        const diagnostics = vscode_1.languages.getDiagnostics(document.uri);
+        const problems = diagnostics.map(diagnostic => {
+            return {
+                line: diagnostic.range.start.line,
+                message: diagnostic.message,
+                severity: diagnostic.severity || vscode_1.DiagnosticSeverity.Error
+            };
+        });
+        return problems;
+    });
+}
 function generateReactFlowData(fileTree) {
     return __awaiter(this, void 0, void 0, function* () {
         const nodes = [];

@@ -1,4 +1,4 @@
-import { commands, ExtensionContext, FileStat, window, Uri, workspace, extensions } from "vscode";
+import { commands, ExtensionContext, FileStat, window, Uri, workspace, extensions, languages, DiagnosticSeverity } from "vscode";
 import { HelloWorldPanel } from "./panels/HelloWorldPanel";
 import * as path from "path";
 import * as fs from "fs";
@@ -69,6 +69,26 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
 
   return { nodes, edges };
 };
+
+interface Problem {
+  line: number;
+  message: string;
+  severity: DiagnosticSeverity;
+}
+
+
+async function getProblemsForFile(filePath: string): Promise<Problem[]> {
+  const document = await workspace.openTextDocument(filePath);
+  const diagnostics = languages.getDiagnostics(document.uri);
+  const problems: Problem[] = diagnostics.map(diagnostic => {
+      return {
+          line: diagnostic.range.start.line,
+          message: diagnostic.message,
+          severity: diagnostic.severity || DiagnosticSeverity.Error
+      };
+  });
+  return problems;
+}
 
 async function generateReactFlowData(fileTree: FileNode): Promise<{
   layoutedNodes: Node[];
