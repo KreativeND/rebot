@@ -1,6 +1,7 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, workspace } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import { readJsonFileAtRoot } from "../extension";
 const path = require('path');
 
 export class HelloWorldPanel {
@@ -52,6 +53,7 @@ export class HelloWorldPanel {
     }
   }
 
+
   public sendDataToWebview(data: any) {
     if (this._panel) {
       this._panel.webview.postMessage({ command: "sendDataToExtension", payload: data });
@@ -95,6 +97,16 @@ export class HelloWorldPanel {
           case "sendDataToExtension":
             console.log('Received data from webview:', payload);
             // Perform actions with the received data here
+            return;
+          case "getReactflowData":
+            const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
+
+            readJsonFileAtRoot(fileName).then((data) => {
+              if (data) {
+                console.log(data); // Do something with the JSON data
+                this.sendDataToWebview(data);
+              }
+            });
             return;
         }
       },

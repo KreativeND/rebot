@@ -12,6 +12,7 @@ import "reactflow/dist/base.css";
 import FolderNode from "./customNodes/FolderNode";
 import FileNode from "./customNodes/FileNode";
 import { LuRocket } from "react-icons/lu";
+import { vscode } from "./utilities/vscode";
 
 const nodeTypes = {
   FolderNode: FolderNode,
@@ -30,6 +31,10 @@ const Flow = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   useEffect(() => {
+    vscode.postMessage({command: "getReactflowData"});
+  },[])
+
+  useEffect(() => {
     console.log("asdasdasgyudgausgdufyuasgdyuasgudgfuaysdgausd");
     const messageListener = (event) => {
       const message = event.data;
@@ -42,14 +47,7 @@ const Flow = () => {
           initialEdges = message.payload?.layoutedEdges;
           console.log("nodes:", initialNodes);
           setNodes((nodes) => initialNodes);
-          setEdges((prev) => {
-            return initialEdges.map((edge: any) => ({
-              ...edge,
-              type: "smoothstep", // Set edge type to SmoothStepEdgeType
-              animated: true,
-              style: { strokeWidth: 2 },
-            }));
-          });
+          setEdges((prev) => initialEdges);
           console.log("edges:", initialEdges);
           // Update nodes based on the received data
           break;
@@ -78,7 +76,7 @@ const Flow = () => {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView>
-        {/* <Background color={vscodeForeground}/> */}
+        <Background />
         {/* <Controls /> */}
       </ReactFlow>
       <div

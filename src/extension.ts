@@ -35,8 +35,8 @@ interface Edge {
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 100;
-const nodeHeight = 40;
+const nodeWidth = 200;
+const nodeHeight = 100;
 
 const getLayoutedElements = (nodes, edges, direction = "TB") => {
   const isHorizontal = direction === "LR";
@@ -143,8 +143,15 @@ async function generateReactFlowData(fileTree: FileNode): Promise<{
 
   traverse(fileTree);
 
-  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
+  let { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
 
+  layoutedEdges = layoutedEdges.map((edge: any) => ({
+    ...edge,
+    type: "smoothstep", // Set edge type to SmoothStepEdgeType
+    animated: true,
+    style: { strokeWidth: 2 },
+  }));
+  
   return { layoutedNodes, layoutedEdges };
 }
 
@@ -188,7 +195,7 @@ function createDirectoryIfNotExists(directoryPath: string): void {
   }
 }
 
-async function readJsonFileAtRoot(fileName) {
+export async function readJsonFileAtRoot(fileName) {
   const workspaceFolders = workspace.workspaceFolders;
   if (!workspaceFolders) {
     window.showErrorMessage("No workspace folders are opened.");
