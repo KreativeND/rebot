@@ -9,16 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = void 0;
+exports.activate = exports.readJsonFileAtRoot = void 0;
 const vscode_1 = require("vscode");
 const HelloWorldPanel_1 = require("./panels/HelloWorldPanel");
 const path = require("path");
 const fs = require("fs");
 const dagre = require("dagre");
+const sidepanel_1 = require("./panels/sidepanel");
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
-const nodeWidth = 100;
-const nodeHeight = 40;
+const nodeWidth = 200;
+const nodeHeight = 100;
 const getLayoutedElements = (nodes, edges, direction = "TB") => {
     const isHorizontal = direction === "LR";
     dagreGraph.setGraph({ rankdir: direction });
@@ -99,7 +100,8 @@ function generateReactFlowData(fileTree) {
             return nodeId;
         };
         traverse(fileTree);
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
+        let { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
+        layoutedEdges = layoutedEdges.map((edge) => (Object.assign(Object.assign({}, edge), { type: "smoothstep", animated: true, style: { strokeWidth: 2 } })));
         return { layoutedNodes, layoutedEdges };
     });
 }
@@ -163,7 +165,10 @@ function readJsonFileAtRoot(fileName) {
         }
     });
 }
+exports.readJsonFileAtRoot = readJsonFileAtRoot;
 function activate(context) {
+    const op = vscode_1.window.createOutputChannel('ReBOT');
+    (0, sidepanel_1.registerWebViewProvider)(context, op);
     let reactFlowData = null;
     // Create the show hello world command
     const showHelloWorldCommand = vscode_1.commands.registerCommand("rebot.startRebot", () => {

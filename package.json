@@ -20,7 +20,26 @@
         "title": "show file tree",
         "category": "rebot"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "webview",
+          "title": "REBOT",
+          "icon": "assets/icons/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "webview": [
+        {
+          "type": "webview",
+          "id": "left-panel-webview",
+          "name": "REBOT",
+          "icon": "assets/icons/icon.svg"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",

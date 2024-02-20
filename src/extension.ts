@@ -3,6 +3,7 @@ import { HelloWorldPanel } from "./panels/HelloWorldPanel";
 import * as path from "path";
 import * as fs from "fs";
 import * as dagre from "dagre";
+import { registerWebViewProvider } from "./panels/sidepanel";
 
 interface FileNode {
   name: string;
@@ -222,6 +223,8 @@ export async function readJsonFileAtRoot(fileName) {
 }
 
 export function activate(context: ExtensionContext) {
+  const op = window.createOutputChannel('ReBOT');
+  registerWebViewProvider(context, op);
   let reactFlowData: any = null;
 
   // Create the show hello world command

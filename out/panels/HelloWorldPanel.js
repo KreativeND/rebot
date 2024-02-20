@@ -4,6 +4,7 @@ exports.HelloWorldPanel = void 0;
 const vscode_1 = require("vscode");
 const getUri_1 = require("../utilities/getUri");
 const getNonce_1 = require("../utilities/getNonce");
+const extension_1 = require("../extension");
 const path = require('path');
 class HelloWorldPanel {
     constructor(panel, extensionUri) {
@@ -75,6 +76,15 @@ class HelloWorldPanel {
                 case "sendDataToExtension":
                     console.log('Received data from webview:', payload);
                     // Perform actions with the received data here
+                    return;
+                case "getReactflowData":
+                    const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
+                    (0, extension_1.readJsonFileAtRoot)(fileName).then((data) => {
+                        if (data) {
+                            console.log(data); // Do something with the JSON data
+                            this.sendDataToWebview(data);
+                        }
+                    });
                     return;
             }
         }, undefined, this._disposables);
