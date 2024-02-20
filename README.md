@@ -11,9 +11,6 @@ For a deeper dive into how this sample works, read the guides below.
 ## Run The Sample
 
 ```bash
-# Copy sample extension locally
-npx degit microsoft/vscode-webview-ui-toolkit-samples/frameworks/hello-world-react-vite hello-world
-
 # Navigate into sample directory
 cd rebot
 
