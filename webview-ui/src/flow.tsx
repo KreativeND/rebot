@@ -24,9 +24,6 @@ let initialNodes = [];
 let initialEdges = [];
 
 const Flow = () => {
-  const vscodeForeground = window
-    .getComputedStyle(document.documentElement)
-    .getPropertyValue("--vscode-foreground");
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes as any);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
