@@ -66,7 +66,7 @@ class SidebarWebViewProvider {
               <script nonce="${nonce}"></script>
            </head>
            <body>
-              <div>Rebot Actions:</div>
+              <h2>Rebot:</h2>
               <button type="button" class="generate-tree-data">Generate Files</button><br>
               <button type="button" class="show-tree-data">Start Rebot</button><br>
               <script nonce="${nonce}" src="${scriptUri}"></script>

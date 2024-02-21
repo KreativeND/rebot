@@ -1,7 +1,8 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, workspace } from "vscode";
+import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, workspace, ProgressLocation } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { readJsonFileAtRoot } from "../extension";
+import * as fs from "fs";
 const path = require('path');
 
 export class HelloWorldPanel {
@@ -60,6 +61,35 @@ export class HelloWorldPanel {
     }
   }
 
+  public refactorCode(data: any) {
+    // window.showInformationMessage(`Refactoring ${data.filename}`);
+    const rootFolderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!rootFolderPath) {
+      window.showErrorMessage("No workspace opened");
+      return;
+    }
+
+    console.log(data);
+    let isError = false;
+    data.forEach((file) => {
+      // Create metadata folder if it does not exist
+      const filePath = path.join(rootFolderPath, file.metadata.path);
+  
+      if (filePath) {
+  
+        fs.writeFileSync(filePath, file.metadata.refactoredcontent);
+        
+      } else {
+        window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
+        isError = true;
+      }
+    })
+    if(!isError)
+    {
+      window.showInformationMessage(`Refactoring done 👍`);
+    }
+  }
+
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
     const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
@@ -108,6 +138,11 @@ export class HelloWorldPanel {
               }
             });
             return;
+          case "refactorCode":
+            this.refactorCode(message.data);
+            return;
+          case "refactorStarted":
+            window.showInformationMessage("ReBot Start working on refactor your code 🚀")
         }
       },
       undefined,

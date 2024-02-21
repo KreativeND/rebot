@@ -11,8 +11,8 @@ import ReactFlow, {
 import "reactflow/dist/base.css";
 import FolderNode from "./customNodes/FolderNode";
 import FileNode from "./customNodes/FileNode";
-import { LuRocket } from "react-icons/lu";
 import { vscode } from "./utilities/vscode";
+import RefactorButton from "./components/customComponents/refactorButton";
 
 const nodeTypes = {
   FolderNode: FolderNode,
@@ -28,8 +28,8 @@ const Flow = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   useEffect(() => {
-    vscode.postMessage({command: "getReactflowData"});
-  },[])
+    vscode.postMessage({ command: "getReactflowData" });
+  }, [])
 
   useEffect(() => {
     console.log("asdasdasgyudgausgdufyuasgdyuasgudgfuaysdgausd");
@@ -66,7 +66,7 @@ const Flow = () => {
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
       <ReactFlow
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: "100%", width: "100vw" }}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -85,24 +85,7 @@ const Flow = () => {
           display: "flex",
           justifyContent: "center",
         }}>
-        {/* <input
-          style={{
-            backgroundColor: "var(--vscode-button-background)",
-            cursor: "pointer",
-            border: "2px solid black",
-            borderRadius: "10px",
-            paddingInline: "20px",
-          }}
-          type="button"
-          value="🚀 Refactor"
-        /> */}
-        <button className="Btn">
-          <div className="sign">
-            <LuRocket size="40px"/>
-          </div>
-
-          <div className="text">Refactor</div>
-        </button>
+        <RefactorButton nodes= {nodes}/>
       </div>
     </div>
   );

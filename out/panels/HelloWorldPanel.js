@@ -5,6 +5,7 @@ const vscode_1 = require("vscode");
 const getUri_1 = require("../utilities/getUri");
 const getNonce_1 = require("../utilities/getNonce");
 const extension_1 = require("../extension");
+const fs = require("fs");
 const path = require('path');
 class HelloWorldPanel {
     constructor(panel, extensionUri) {
@@ -42,6 +43,31 @@ class HelloWorldPanel {
     sendDataToWebview(data) {
         if (this._panel) {
             this._panel.webview.postMessage({ command: "sendDataToExtension", payload: data });
+        }
+    }
+    refactorCode(data) {
+        var _a, _b;
+        // window.showInformationMessage(`Refactoring ${data.filename}`);
+        const rootFolderPath = (_b = (_a = vscode_1.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.uri.fsPath;
+        if (!rootFolderPath) {
+            vscode_1.window.showErrorMessage("No workspace opened");
+            return;
+        }
+        console.log(data);
+        let isError = false;
+        data.forEach((file) => {
+            // Create metadata folder if it does not exist
+            const filePath = path.join(rootFolderPath, file.metadata.path);
+            if (filePath) {
+                fs.writeFileSync(filePath, file.metadata.refactoredcontent);
+            }
+            else {
+                vscode_1.window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
+                isError = true;
+            }
+        });
+        if (!isError) {
+            vscode_1.window.showInformationMessage(`Refactoring done 👍`);
         }
     }
     _getWebviewContent(webview, extensionUri) {
@@ -86,6 +112,11 @@ class HelloWorldPanel {
                         }
                     });
                     return;
+                case "refactorCode":
+                    this.refactorCode(message.data);
+                    return;
+                case "refactorStarted":
+                    vscode_1.window.showInformationMessage("ReBot Start working on refactor your code 🚀");
             }
         }, undefined, this._disposables);
     }
