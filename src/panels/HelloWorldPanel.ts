@@ -3,6 +3,7 @@ import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { readJsonFileAtRoot } from "../extension";
 import * as fs from "fs";
+import axios from "axios";
 const path = require('path');
 
 export class HelloWorldPanel {
@@ -69,25 +70,60 @@ export class HelloWorldPanel {
       return;
     }
 
-    console.log(data);
-    let isError = false;
+    console.log("data from react", data);
+
     data.forEach((file) => {
-      // Create metadata folder if it does not exist
-      const filePath = path.join(rootFolderPath, file.metadata.path);
-  
-      if (filePath) {
-  
-        fs.writeFileSync(filePath, file.metadata.refactoredcontent);
-        
-      } else {
-        window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
-        isError = true;
-      }
-    })
-    if(!isError)
-    {
-      window.showInformationMessage(`Refactoring done 👍`);
-    }
+      axios.post("http://127.0.0.1:8000/refactor-code", {
+        code: file.metadata.content
+      }).then((res) => {
+        const refactoredText = res.data.refactor_code;
+        let isError = false;
+        // Create metadata folder if it does not exist
+        const filePath = path.join(rootFolderPath, file.metadata.path);
+
+        if (filePath) {
+
+          fs.writeFileSync(filePath, refactoredText);
+          console.log(`Refactoring started - ${file.data.label}`);
+          window.showInformationMessage(`Refactoring done - ${file.data.label}`);
+
+        } else {
+          window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
+          isError = true;
+        }
+      });
+    });
+
+    // Promise.all(data.map((element) => {
+    //   return axios.post("http://127.0.0.1:8000/refactor-code", {
+    //     code: element.metadata.content
+    //   }).then((res) => {
+    //     const refactoredText = res.data.refactor_code;
+    //     return { ...element, metadata: { ...element.metadata, refactoredcontent: refactoredText } };
+    //   });
+    // })).then((refactoredNodes) => {
+    //   console.log("refactored code", refactoredNodes);
+    //   console.log(refactoredNodes);
+    //   let isError = false;
+    //   refactoredNodes.forEach((file) => {
+    //     // Create metadata folder if it does not exist
+    //     const filePath = path.join(rootFolderPath, file.metadata.path);
+
+    //     if (filePath) {
+
+    //       fs.writeFileSync(filePath, file.metadata.refactoredcontent);
+
+    //     } else {
+    //       window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
+    //       isError = true;
+    //     }
+    //   });
+    //   if (!isError) {
+    //     window.showInformationMessage(`Refactoring done 👍`);
+    //   }
+    // });
+
+
   }
 
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {

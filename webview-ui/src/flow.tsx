@@ -1,12 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import ReactFlow, {
   Background,
-  Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
-  addEdge,
-  Position,
 } from "reactflow";
 import "reactflow/dist/base.css";
 import FolderNode from "./customNodes/FolderNode";
@@ -30,6 +26,7 @@ const Flow = () => {
   useEffect(() => {
     vscode.postMessage({ command: "getReactflowData" });
   }, [])
+  
 
   useEffect(() => {
     console.log("asdasdasgyudgausgdufyuasgdyuasgudgfuaysdgausd");
