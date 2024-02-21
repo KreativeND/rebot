@@ -178,7 +178,7 @@ export class HelloWorldPanel {
             this.refactorCode(message.data);
             return;
           case "refactorStarted":
-            window.showInformationMessage("ReBot Start working on refactor your code 🚀")
+            window.showInformationMessage("ReBot Start working on refactor your code 🚀");
         }
       },
       undefined,

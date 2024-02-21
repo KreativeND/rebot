@@ -183,11 +183,11 @@ function activate(context) {
     });
     // Add command to the extension context
     context.subscriptions.push(showHelloWorldCommand);
-    let disposable = vscode_1.commands.registerCommand("rebot.showFileTree", () => __awaiter(this, void 0, void 0, function* () {
+    let disposable = vscode_1.commands.registerCommand("rebot.showFileTree", (rootFolder = 'src') => __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
         // Get the root path of the workspace
         // Find the folder in the workspace
-        const folderUri = findFolderInWorkspace("src");
+        const folderUri = findFolderInWorkspace(rootFolder);
         const rootFolderPath = (_b = (_a = vscode_1.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.uri.fsPath;
         if (!rootFolderPath) {
             vscode_1.window.showErrorMessage("No workspace opened");
@@ -211,10 +211,11 @@ function activate(context) {
             // Write JSON to a file in the metadata folder
             const flowDataPath = path.join(metadataFolderPath, "reactFlowData.json");
             fs.writeFileSync(flowDataPath, jsonFlowData);
-            vscode_1.window.showInformationMessage(`Folder tree JSON saved to folderTree.json in ${"src"} folder.`);
+            vscode_1.window.showInformationMessage(`Folder tree JSON saved to folderTree.json in ${rootFolder} folder.`);
+            vscode_1.commands.executeCommand('rebot.startRebot');
         }
         else {
-            vscode_1.window.showErrorMessage(`Folder "${"src"}" not found in workspace.`);
+            vscode_1.window.showErrorMessage(`Folder "${rootFolder}" not found in workspace.`);
         }
     }));
     context.subscriptions.push(disposable);

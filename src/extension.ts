@@ -243,10 +243,10 @@ export function activate(context: ExtensionContext) {
   // Add command to the extension context
   context.subscriptions.push(showHelloWorldCommand);
 
-  let disposable = commands.registerCommand("rebot.showFileTree", async () => {
+  let disposable = commands.registerCommand("rebot.showFileTree", async (rootFolder = 'src') => {
     // Get the root path of the workspace
     // Find the folder in the workspace
-    const folderUri = findFolderInWorkspace("src");
+    const folderUri = findFolderInWorkspace(rootFolder);
     const rootFolderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!rootFolderPath) {
       window.showErrorMessage("No workspace opened");
@@ -276,10 +276,11 @@ export function activate(context: ExtensionContext) {
       fs.writeFileSync(flowDataPath, jsonFlowData);
 
       window.showInformationMessage(
-        `Folder tree JSON saved to folderTree.json in ${"src"} folder.`
+        `Folder tree JSON saved to folderTree.json in ${rootFolder} folder.`
       );
+      commands.executeCommand('rebot.startRebot');
     } else {
-      window.showErrorMessage(`Folder "${"src"}" not found in workspace.`);
+      window.showErrorMessage(`Folder "${rootFolder}" not found in workspace.`);
     }
   });
 
