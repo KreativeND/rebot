@@ -37,10 +37,10 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                     break;
                 }
                 case "noFolderSelected":
-                {
-                    window.showInformationMessage("Please Select a Folder");
-                    break;
-                }
+                    {
+                        window.showInformationMessage("Please Select a Folder");
+                        break;
+                    }
             }
         });
     }
