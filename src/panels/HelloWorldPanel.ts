@@ -62,6 +62,12 @@ export class HelloWorldPanel {
     }
   }
 
+  public refactorDone() {
+    if (this._panel) {
+      this._panel.webview.postMessage({ command: "refactorDone" });
+    }
+  }
+
   public refactorCode(data: any) {
     // window.showInformationMessage(`Refactoring ${data.filename}`);
     const rootFolderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -70,61 +76,38 @@ export class HelloWorldPanel {
       return;
     }
 
+    window.showInformationMessage("ReBot Start working on refactoring your code 🚀");
     console.log("data from react", data);
 
+    console.log("refactored code", data);
+    console.log(data);
+    let isError = false;
+    let completedCount = 1; // Counter to track completed iterations
+    const totalCount = data.length; // Total number of iterations
+
     data.forEach((file) => {
-      axios.post("http://127.0.0.1:8000/refactor-code", {
-        code: file.metadata.content
-      }).then((res) => {
-        const refactoredText = res.data.refactor_code;
-        let isError = false;
-        // Create metadata folder if it does not exist
-        const filePath = path.join(rootFolderPath, file.metadata.path);
+      // Create metadata folder if it does not exist
+      const filePath = path.join(rootFolderPath, file.metadata.path);
 
-        if (filePath) {
+      if (filePath) {
+        let content = file.metadata.refactoredcontent || file.metadata.content;
+        fs.writeFileSync(filePath, content);
+        // window.showInformationMessage(`Refactoring ${file.data.label}`);
+      } else {
+        window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
+        isError = true;
+      }
 
-          fs.writeFileSync(filePath, refactoredText);
-          console.log(`Refactoring started - ${file.data.label}`);
-          window.showInformationMessage(`Refactoring done - ${file.data.label}`);
+      completedCount++; // Increment completed count
 
-        } else {
-          window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
-          isError = true;
-        }
-      });
+      // Check if all iterations are completed
+      if (completedCount === totalCount && !isError) {
+        window.showInformationMessage(`Refactoring done 👍`);
+        this.refactorDone();
+      }
     });
-
-    // Promise.all(data.map((element) => {
-    //   return axios.post("http://127.0.0.1:8000/refactor-code", {
-    //     code: element.metadata.content
-    //   }).then((res) => {
-    //     const refactoredText = res.data.refactor_code;
-    //     return { ...element, metadata: { ...element.metadata, refactoredcontent: refactoredText } };
-    //   });
-    // })).then((refactoredNodes) => {
-    //   console.log("refactored code", refactoredNodes);
-    //   console.log(refactoredNodes);
-    //   let isError = false;
-    //   refactoredNodes.forEach((file) => {
-    //     // Create metadata folder if it does not exist
-    //     const filePath = path.join(rootFolderPath, file.metadata.path);
-
-    //     if (filePath) {
-
-    //       fs.writeFileSync(filePath, file.metadata.refactoredcontent);
-
-    //     } else {
-    //       window.showErrorMessage(`Folder "${file.data.label}" not found in workspace.`);
-    //       isError = true;
-    //     }
-    //   });
-    //   if (!isError) {
-    //     window.showInformationMessage(`Refactoring done 👍`);
-    //   }
-    // });
-
-
   }
+
 
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
@@ -138,7 +121,7 @@ export class HelloWorldPanel {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src http://127.0.0.1:8000;">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>
         </head>
@@ -179,6 +162,8 @@ export class HelloWorldPanel {
             return;
           case "refactorStarted":
             window.showInformationMessage("ReBot Start working on refactor your code 🚀");
+            return;
+          
         }
       },
       undefined,

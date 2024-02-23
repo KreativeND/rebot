@@ -11,10 +11,18 @@
     folderSelect.addEventListener('change', handleFolderSelection);
 
     function generateTreeBtnClicked() {
-        vscode.postMessage({
-            type: 'generate-tree',
-            value: 'generate-tree-data clicked'
-        });
+        console.log(folderSelect.value);
+        if (folderSelect.value === "") {
+            vscode.postMessage({
+                type: 'noFolderSelected',
+            });
+        }
+        else {
+            vscode.postMessage({
+                type: 'generate-tree',
+                value: 'generate-tree-data clicked'
+            });
+        }
     }
 
     function showTreeBtnClicked() {
@@ -28,10 +36,10 @@
         const folderPath = event.target.value;
         console.log(folderPath);
         vscode.postMessage({
-          type: 'generate-tree',
-          folderPath: folderPath
+            type: 'generate-tree',
+            folderPath: folderPath
         });
-      }
+    }
 
     window.addEventListener("message", async (event) => {
         const message = event.data;

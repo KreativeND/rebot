@@ -36,8 +36,8 @@ interface Edge {
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 200;
-const nodeHeight = 100;
+const nodeWidth = 300;
+const nodeHeight = 200;
 
 const getLayoutedElements = (nodes, edges, direction = "TB") => {
   const isHorizontal = direction === "LR";
@@ -82,11 +82,11 @@ async function getProblemsForFile(filePath: string): Promise<Problem[]> {
   const document = await workspace.openTextDocument(filePath);
   const diagnostics = languages.getDiagnostics(document.uri);
   const problems: Problem[] = diagnostics.map(diagnostic => {
-      return {
-          line: diagnostic.range.start.line,
-          message: diagnostic.message,
-          severity: diagnostic.severity || DiagnosticSeverity.Error
-      };
+    return {
+      line: diagnostic.range.start.line,
+      message: diagnostic.message,
+      severity: diagnostic.severity || DiagnosticSeverity.Error
+    };
   });
   return problems;
 }
@@ -152,7 +152,7 @@ async function generateReactFlowData(fileTree: FileNode): Promise<{
     animated: true,
     style: { strokeWidth: 2 },
   }));
-  
+
   return { layoutedNodes, layoutedEdges };
 }
 
@@ -242,6 +242,19 @@ export function activate(context: ExtensionContext) {
 
   // Add command to the extension context
   context.subscriptions.push(showHelloWorldCommand);
+
+  let activityBarDisposable = commands.registerCommand("rebot.showHelloWorldPanel", () => {
+    const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
+
+    readJsonFileAtRoot(fileName).then((data) => {
+      if (data) {
+        console.log(data); // Do something with the JSON data
+        HelloWorldPanel.render(context.extensionUri);
+        HelloWorldPanel.currentPanel.sendDataToWebview(data);
+      }
+    });
+  });
+  context.subscriptions.push(activityBarDisposable);
 
   let disposable = commands.registerCommand("rebot.showFileTree", async (rootFolder = 'src') => {
     // Get the root path of the workspace

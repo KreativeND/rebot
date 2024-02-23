@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { Handle, Position } from "reactflow";
-import { FaRegFileCode } from "react-icons/fa6";
-import {
+import { CiFileOn } from "react-icons/ci"; import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -14,8 +13,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 
 const FileNode = memo(({ data }) => {
   const vscodeForeground = window
-  .getComputedStyle(document.documentElement)
-  .getPropertyValue("--vscode-foreground");
+    .getComputedStyle(document.documentElement)
+    .getPropertyValue("--vscode-foreground");
   return (
     <>
       <Sheet>
@@ -25,13 +24,12 @@ const FileNode = memo(({ data }) => {
               <div
                 style={{
                   backgroundColor: "var(--vscode-button-background)",
-                  height: "40px",
-                  minwidth: "100px",
-                  paddingInline: "20px",
+                  height: "100px",
+                  width: "200px",
+                  paddingInline: "10px",
                   border: "2px solid black",
                   borderRadius: "10px",
-                  display: "grid",
-                  placeItems: "center",
+                  display: "flex",
                   cursor: "pointer",
                 }}>
                 <Handle
@@ -40,8 +38,8 @@ const FileNode = memo(({ data }) => {
                   onConnect={(params) => console.log("handle onConnect", params)}
                 />
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  <FaRegFileCode style={{ marginRight: "3px" }} />
-                  <strong>{data?.label}</strong>
+                  <CiFileOn style={{ marginRight: "3px" }} size={"70px"} />
+                  <div><p style={{ fontSize: "18px" }}>{data.label}</p></div>
                 </div>
               </div>
             </HoverCardTrigger>

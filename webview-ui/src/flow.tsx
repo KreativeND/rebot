@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   useNodesState,
@@ -9,6 +9,7 @@ import FolderNode from "./customNodes/FolderNode";
 import FileNode from "./customNodes/FileNode";
 import { vscode } from "./utilities/vscode";
 import RefactorButton from "./components/customComponents/refactorButton";
+import LoadingScreen from "./components/customComponents/loadingScreen";
 
 const nodeTypes = {
   FolderNode: FolderNode,
@@ -22,11 +23,15 @@ let initialEdges = [];
 const Flow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes as any);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     vscode.postMessage({ command: "getReactflowData" });
   }, [])
-  
+
+  const setLoading = (val) => {
+    setIsLoading(val);
+  }
 
   useEffect(() => {
     console.log("asdasdasgyudgausgdufyuasgdyuasgudgfuaysdgausd");
@@ -42,8 +47,12 @@ const Flow = () => {
           console.log("nodes:", initialNodes);
           setNodes((nodes) => initialNodes);
           setEdges((prev) => initialEdges);
+          setIsLoading(false);
           console.log("edges:", initialEdges);
           // Update nodes based on the received data
+          break;
+        case "refactorDone":
+          setIsLoading(false);
           break;
         // Add more cases for different commands if needed
         default:
@@ -60,31 +69,40 @@ const Flow = () => {
     };
   }, []);
 
-  return (
-    <div style={{ height: "100%", width: "100%", position: "relative" }}>
-      <ReactFlow
-        style={{ height: "100%", width: "100vw" }}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        fitView>
-        <Background />
-        {/* <Controls /> */}
-      </ReactFlow>
-      <div
-        style={{
-          position: "absolute",
-          zIndex: "1000",
-          width: "100%",
-          bottom: "20px",
-          display: "flex",
-          justifyContent: "center",
-        }}>
-        <RefactorButton nodes= {nodes}/>
-      </div>
+  if (isLoading) {
+    return <div style={{ height: "100%", width: "100%", display: "grid", placeItems: "center" }}>
+      <LoadingScreen />
     </div>
+  }
+
+  return (
+    <>
+      <div style={{ height: "100%", width: "100%", position: "relative" }}>
+        <ReactFlow
+          style={{ height: "100%", width: "100vw" }}
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          fitView>
+          <Background />
+          {/* <Controls /> */}
+        </ReactFlow>
+        <div
+          style={{
+            position: "absolute",
+            zIndex: "1000",
+            width: "100%",
+            bottom: "20px",
+            display: "flex",
+            justifyContent: "center",
+          }}>
+          <RefactorButton nodes={nodes} setLoading={setLoading}/>
+        </div>
+      </div>
+    </>
+
   );
 };
 

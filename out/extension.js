@@ -18,8 +18,8 @@ const dagre = require("dagre");
 const sidepanel_1 = require("./panels/sidepanel");
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
-const nodeWidth = 200;
-const nodeHeight = 100;
+const nodeWidth = 300;
+const nodeHeight = 200;
 const getLayoutedElements = (nodes, edges, direction = "TB") => {
     const isHorizontal = direction === "LR";
     dagreGraph.setGraph({ rankdir: direction });
@@ -183,6 +183,17 @@ function activate(context) {
     });
     // Add command to the extension context
     context.subscriptions.push(showHelloWorldCommand);
+    let activityBarDisposable = vscode_1.commands.registerCommand("rebot.showHelloWorldPanel", () => {
+        const fileName = "reactFlowData.json"; // Specify the name of the JSON file you want to read
+        readJsonFileAtRoot(fileName).then((data) => {
+            if (data) {
+                console.log(data); // Do something with the JSON data
+                HelloWorldPanel_1.HelloWorldPanel.render(context.extensionUri);
+                HelloWorldPanel_1.HelloWorldPanel.currentPanel.sendDataToWebview(data);
+            }
+        });
+    });
+    context.subscriptions.push(activityBarDisposable);
     let disposable = vscode_1.commands.registerCommand("rebot.showFileTree", (rootFolder = 'src') => __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
         // Get the root path of the workspace

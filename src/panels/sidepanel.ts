@@ -36,6 +36,11 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                     commands.executeCommand('rebot.startRebot');
                     break;
                 }
+                case "noFolderSelected":
+                {
+                    window.showInformationMessage("Please Select a Folder");
+                    break;
+                }
             }
         });
     }
@@ -83,7 +88,6 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
         return `<option value="${folder}">${folder}</option>`;
     }).join('');
 
-
     private _getHtmlForWebview(webview: Webview) {
         const styleResetUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "assets", "css", "reset.css"));
         const scriptUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "assets", "js", "rebot.js"));
@@ -94,33 +98,67 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
         return `<!DOCTYPE html>
         <html lang="en">
             <head>
-              <meta charset="UTF-8">
-              <!--
-                 Use a content security policy to only allow loading images from https or from our extension directory,
-                 and only allow scripts that have a specific nonce.
-                 -->
-              <meta http-equiv="Content-Security-Policy"
-               content="
-                 img-src ${webview.cspSource}
-                 style-src ${webview.cspSource}
-                 script-src 'nonce-${nonce}';">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <link href="${styleResetUri}" rel="stylesheet">
-              <link href="${styleVSCodeUri}" rel="stylesheet">
-              <script nonce="${nonce}">
-              </script>
-           </head>
-           <body>
-              <h2>Rebot:</h2>
-              <label for="folder-select">Select a folder:</label>
+                <meta charset="UTF-8">
+                <!-- Use a content security policy to only allow loading images from https or from our extension directory,
+                     and only allow scripts that have a specific nonce. -->
+                <meta http-equiv="Content-Security-Policy"
+                    content="img-src ${webview.cspSource} style-src ${webview.cspSource} script-src 'nonce-${nonce}';">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link href="${styleResetUri}" rel="stylesheet">
+                <link href="${styleVSCodeUri}" rel="stylesheet">
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                    }
+
+                    h2 {
+                        margin-bottom: 20px;
+                    }
+
+                    label {
+                        font-size: 16px;
+                        margin-bottom: 10px;
+                        display: block;
+                    }
+
+                    select {
+                        font-size: 16px;
+                        padding: 8px;
+                        width: 100%;
+                        margin-bottom: 20px;
+                    }
+
+                    button {
+                        padding: 10px 20px;
+                        font-size: 16px;
+                        cursor: pointer;
+                    }
+
+                    .generate-tree-data {
+                        background-color: #4CAF50;
+                        color: white;
+                        border: none;
+                    }
+
+                    .show-tree-data {
+                        background-color: #008CBA;
+                        color: white;
+                        border: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Rebot:</h2>
+                <label for="folder-select">Select a folder:</label>
                 <select id="folder-select">
                     <option value="">-- Select Folder --</option>
                     ${this.folderOptions}
                 </select>
-              <button type="button" class="generate-tree-data">Generate Files</button><br>
-              <button type="button" class="show-tree-data">Start Rebot</button><br>
-              <script nonce="${nonce}" src="${scriptUri}"></script>
-           </body>
+                <button type="button" class="generate-tree-data">Generate Files</button><br>
+                <button type="button" class="show-tree-data">Start Rebot</button><br>
+                <script nonce="${nonce}" src="${scriptUri}"></script>
+            </body>
         </html>`;
     }
 }
