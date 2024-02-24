@@ -9,17 +9,21 @@ const RefactorPanel = ({ fileNodes }) => {
         <div>
             <SheetContent>
                 <SheetHeader>
-                    <SheetTitle>Rebot</SheetTitle>
+                    <SheetTitle>Files: </SheetTitle>
                     <Card className='w-full'>
-                        <CardContent className='w-full p-4'>
+                        <CardContent className='w-full p-4 h-[300px] overflow-auto scroll_area'>
                             {
                                 fileNodes.map((fileNode, index) => (
-                                    <div key={index} className='w-full h-[50px] py-4 border border-gray-700 rounded-lg items-center'>
-                                        <div className='flex'>
-                                            <CiFileOn style={{ marginRight: "3px" }} size={"30px"} />
-                                            <div>
-                                                {fileNode.data.label}
-                                                {fileNode.metadata.path}
+                                    <div key={index} className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow'>
+                                        <div className='flex h-full items-center'>
+                                            <CiFileOn size={"40px"} />
+                                            <div className='flex flex-col justify-center'>
+                                                <h4>
+                                                    {fileNode.data.label}
+                                                </h4>
+                                                <p>
+                                                    {fileNode.metadata.path}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -27,7 +31,8 @@ const RefactorPanel = ({ fileNodes }) => {
                             }
                         </CardContent>
                     </Card>
-                    <SheetTitle>Rebot</SheetTitle>
+                    <SheetTitle>Refactoring rules:</SheetTitle>
+
                 </SheetHeader>
             </SheetContent>
         </div>
