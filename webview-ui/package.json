@@ -29,6 +29,7 @@
     "reactflow": "^11.10.4",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^9.0.1",
     "vscode": "^1.1.37",
     "zod": "^3.22.4"
   },

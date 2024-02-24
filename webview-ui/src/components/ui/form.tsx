@@ -9,6 +9,7 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form"
+import { v4 as uuidv4 } from 'uuid';
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
@@ -74,7 +75,7 @@ const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const id = React.useId()
+  const id = uuidv4();
 
   return (
     <FormItemContext.Provider value={{ id }}>
