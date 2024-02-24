@@ -20,7 +20,7 @@ const FolderNode = memo(({ data }) => {
         <Handle type="target" position={Position.Top} />
         <div style={{ display: "flex", alignItems: "center" }}>
           <CiFolderOn style={{ marginRight: "3px" }} size={"70px"}/>
-          <div><p style={{ fontSize: "18px" }}>{data.label}</p></div>
+          <div><p style={{ fontSize: "25px", overflow: 'clip' }}>{data.label}</p></div>
         </div>
         <Handle type="source" position={Position.Bottom} id="a" />
       </div>

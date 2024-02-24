@@ -12,7 +12,7 @@ import { CiFileOn } from "react-icons/ci";
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
-const FileNode = memo(({ data }) => {
+const FileNode = memo(({ data, metadata }) => {
   const vscodeForeground = window
     .getComputedStyle(document.documentElement)
     .getPropertyValue("--vscode-foreground");
@@ -32,6 +32,7 @@ const FileNode = memo(({ data }) => {
                   borderRadius: "10px",
                   display: "flex",
                   cursor: "pointer",
+                  overflow: 'clip' 
                 }}>
                 <Handle
                   type="target"
@@ -40,7 +41,7 @@ const FileNode = memo(({ data }) => {
                 />
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <CiFileOn style={{ marginRight: "3px" }} size={"70px"} />
-                  <div><p style={{ fontSize: "18px" }}>{data.label}</p></div>
+                  <div><p style={{ fontSize: "25px"}}>{data.label}</p></div>
                 </div>
               </div>
             </HoverCardTrigger>

@@ -57,8 +57,8 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
         // Include root workspace folder
         workspaceFolders.forEach(workspaceFolder => {
             const workspacePath = workspaceFolder.uri.fsPath;
-            const rootFolderName = path.basename(workspacePath);
-            folderNames.push(rootFolderName);
+            // const rootFolderName = path.basename(workspacePath);
+            // folderNames.push(rootFolderName);
             traverseDirectory(workspacePath);
         });
 
@@ -71,7 +71,7 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                 if (stats.isDirectory()) {
                     if (!excludeFolders.includes(file)) { // Check if folder is not in exclude list
                         folderNames.push(file); // Add folder name to the list
-                        traverseDirectory(filePath); // Continue traversing subdirectories
+                        // traverseDirectory(filePath); // Continue traversing subdirectories
                     }
                 }
             }
