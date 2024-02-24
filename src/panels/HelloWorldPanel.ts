@@ -3,7 +3,6 @@ import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { readJsonFileAtRoot } from "../extension";
 import * as fs from "fs";
-import axios from "axios";
 const path = require('path');
 
 export class HelloWorldPanel {
