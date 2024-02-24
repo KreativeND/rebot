@@ -9,7 +9,7 @@ const FolderNode = memo(({ data }) => {
         style={{
           backgroundColor: "var(--vscode-button-background)",
           height: "100px",
-          width: "200px",
+          minWidth: "200px",
           paddingInline: "10px",
           border: "2px solid black",
           borderRadius: "10px",
